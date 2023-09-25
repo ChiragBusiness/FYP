@@ -1,0 +1,52 @@
+import numpy as np
+import csv
+
+# Read data from CSV file
+with open('endpoint.csv','r',encoding= 'utf-8') as file:
+    reader = csv.reader(file)
+    p0 = next(reader)
+    p1 = np.array(list(reader), dtype=float)
+
+N1 = p1.shape[0]
+
+if N1 > 64:
+    N = 64
+else:
+    N = N1
+
+# Extract time and signal values
+t = p1[:N, 0]
+x = p1[:N, 1]
+
+delta_t = (t[-1] - t[0]) / (N - 1)
+
+# Plot original signal
+import matplotlib.pyplot as plt
+plt.plot(t, x)
+plt.show()
+
+# Compute Fourier transform and extract frequency domain information
+Y = np.fft.fft(x) / (N / 2)
+Z = np.abs(Y[:N//2])
+YR = np.real(Y[:N//2])
+YI = np.imag(Y[:N//2])
+
+delta_f = 1 / (delta_t * N)
+f = np.arange(0, N//2) * delta_f
+f1 = np.arange(0, N) * delta_f
+
+# Find maximum value and corresponding frequency
+max_idx = np.argmax(Z)
+max_f = f[max_idx]
+max_Z = Z[max_idx]
+print("Maximum value of Z:", max_Z)
+print("Corresponding frequency:", max_f)
+
+# Plot frequency domain information
+plt.plot(f, Z)
+plt.show()
+
+# Write frequency domain information to output file
+with open('output.txt', 'w') as file:
+    for i in range(N//2):
+        file.write('{:.5f} {:.5f} {:.5f}\n'.format(f1[i], YR[i], YI[i]))
