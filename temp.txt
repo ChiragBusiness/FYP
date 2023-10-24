@@ -1,0 +1,20 @@
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Input
+from tensorflow.keras.layers import Normalization
+
+input_norm = Normalization(axis=-2)
+input_norm.adapt(X)
+
+target_norm = Normalization(axis=-1)
+target_norm.adapt(y)
+y_normalized = target_norm(y)
+
+model = Sequential([
+    Input(shape=(10, 4)),  # Input shape: 10 timesteps with 4 features each
+    input_norm,  # Normalize the input
+    LSTM(50),  # LSTM layer with 50 units
+    Dense(1)  # Output layer with 1 unit
+])
+
+model.compile(optimizer='adam', loss='mse', metrics=['mae'])
